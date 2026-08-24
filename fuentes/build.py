@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Genera el HTML autocontenido del planificador de Islandia."""
-import base64, html, json, os, sys
+import base64, html, json, os, sys, urllib.parse
 import content as C
 import geo, images
 
@@ -502,7 +502,12 @@ def main():
     NAMES.update(C.NOMBRES_EXTRA)
     NAMES = {k: v for k, v in NAMES.items() if k in GAL}
     n_paradas = len(used - {"askja", "sprengisandur", "heimaey"})
+    favicon = ("data:image/svg+xml," + urllib.parse.quote(
+        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 660'>"
+        "<rect width='1000' height='660' fill='%230A1014'/>"
+        "<path d='" + COAST + "' fill='%23F2B233' stroke='%23F2B233' stroke-width='14'/></svg>"))
     H = ['<meta charset="utf-8">',
+         '<link rel="icon" href="%s">' % favicon,
          '<title>Islandia salvaje · 6 rutas para junio de 2027</title>',
          '<meta name="viewport" content="width=device-width,initial-scale=1">',
          '<meta name="color-scheme" content="dark">',
