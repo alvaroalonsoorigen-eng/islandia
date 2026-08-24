@@ -1,0 +1,620 @@
+{
+ "thingvellir": [
+  64.2581,
+  -21.125,
+  "Q107370",
+  "Thingvellir National Park"
+ ],
+ "geysir": [
+  64.3127,
+  -20.3008,
+  "Q1128186",
+  "Strokkur"
+ ],
+ "gullfoss": [
+  64.3261,
+  -20.1211,
+  "Q38519",
+  "Gullfoss"
+ ],
+ "kerid": [
+  64.041,
+  -20.8827,
+  "Q1435393",
+  "Kerið"
+ ],
+ "brudarfoss": [
+  64.7317,
+  -22.1852,
+  "Q16422005",
+  "Brúarfoss"
+ ],
+ "seljalandsfoss": [
+  63.6158,
+  -19.9928,
+  "Q777882",
+  "Seljalandsfoss"
+ ],
+ "gljufrabui": [
+  63.6214,
+  -19.9883,
+  "Q5569999",
+  "Gljufrafoss"
+ ],
+ "skogafoss": [
+  63.5297,
+  -19.5139,
+  "Q1130718",
+  "Skógafoss"
+ ],
+ "kvernufoss": [
+  63.5289,
+  -19.4807,
+  "Q2683317",
+  "Kvernufoss"
+ ],
+ "dyrholaey": [
+  63.4037,
+  -19.1166,
+  "Q968999",
+  "Dyrhólaey"
+ ],
+ "reynisfjara": [
+  63.3995,
+  -19.0319,
+  "Q7319590",
+  "Reynisdrangar"
+ ],
+ "hjorleifshofdi": [
+  63.4167,
+  -18.7667,
+  "Q1621375",
+  "Hjörleifshöfði"
+ ],
+ "thakgil": [
+  63.5419,
+  -18.9006,
+  "Q26999624",
+  "Þakgil"
+ ],
+ "fjadrargljufur": [
+  63.7713,
+  -18.1719,
+  "Q956845",
+  "Fjaðrárgljúfur"
+ ],
+ "svartifoss": [
+  64.0277,
+  -16.9752,
+  "Q1145786",
+  "Svartifoss"
+ ],
+ "mulagljufur": [
+  63.9887,
+  -16.4584,
+  "Q131587778",
+  "Múlagljúfur"
+ ],
+ "fjallsarlon": [
+  64.0217,
+  -16.3948,
+  "Q652328",
+  "Fjallsárlón"
+ ],
+ "jokulsarlon": [
+  64.0703,
+  -16.2117,
+  "Q511933",
+  "Jökulsárlón"
+ ],
+ "diamondbeach": [
+  63.9636,
+  -16.3862,
+  "Q14567939",
+  "Breiðamerkursandur"
+ ],
+ "vestrahorn": [
+  64.28,
+  -14.94,
+  "Q1774351",
+  "Vestrahorn‎"
+ ],
+ "hofn": [
+  64.25,
+  -15.2167,
+  "Q817118",
+  "Höfn"
+ ],
+ "landmannalaugar": [
+  63.9886,
+  -19.0639,
+  "Q950447",
+  "Landmannalaugar"
+ ],
+ "blahnjukur": [
+  63.9768,
+  -19.0681,
+  "Q886940",
+  "Bláhnjúkur"
+ ],
+ "ljotipollur": [
+  64.0353,
+  -18.9982,
+  "Q653324",
+  "Ljótipollur"
+ ],
+ "sigoldugljufur": [
+  64.17,
+  -19.13,
+  "manual",
+  "Sigöldugljúfur"
+ ],
+ "eldgja": [
+  63.9667,
+  -18.6092,
+  "Q388641",
+  "Eldgjá"
+ ],
+ "langisjor": [
+  64.1833,
+  -18.25,
+  "Q283536",
+  "Langisjór"
+ ],
+ "lakagigar": [
+  64.0675,
+  -18.23,
+  "Q203726",
+  "Laki"
+ ],
+ "hveravellir": [
+  64.8653,
+  -19.5567,
+  "Q1130741",
+  "Hveravellir"
+ ],
+ "kerlingarfjoll": [
+  64.65,
+  -19.25,
+  "Q1739281",
+  "Kerlingarfjöll"
+ ],
+ "haifoss": [
+  64.2078,
+  -19.6858,
+  "Q1244151",
+  "Háifoss"
+ ],
+ "gjain": [
+  64.1508,
+  -19.7361,
+  "Q1528959",
+  "Gjáin"
+ ],
+ "thorsmork": [
+  63.6807,
+  -19.4826,
+  "Q138114",
+  "Thórsmörk"
+ ],
+ "stakkholtsgja": [
+  63.6716,
+  -19.5424,
+  "Q16427098",
+  "Stakkholtsgjá"
+ ],
+ "sprengisandur": [
+  64.8667,
+  -18.1167,
+  "Q2303867",
+  "Sprengisandur"
+ ],
+ "askja": [
+  65.03,
+  -16.75,
+  "Q211665",
+  "Askja"
+ ],
+ "holuhraun": [
+  64.8744,
+  -16.74,
+  "Q17663620",
+  "Holuhraun"
+ ],
+ "kverkfjoll": [
+  64.6611,
+  -16.6654,
+  "Q1435038",
+  "Kverkfjöll"
+ ],
+ "aldeyjarfoss": [
+  65.366,
+  -17.348,
+  "Q1827108",
+  "Aldeyjarfoss"
+ ],
+ "hrafntinnusker": [
+  63.9319,
+  -19.1867,
+  "Q16428271",
+  "Hrafntinnusker"
+ ],
+ "alftavatn": [
+  63.8547,
+  -19.2467,
+  "Q16430612",
+  "Álftavatn"
+ ],
+ "emstrur": [
+  63.7509,
+  -19.4108,
+  "Q3294299",
+  "Markarfljótsgljúfur"
+ ],
+ "fimmvorduhals": [
+  63.6313,
+  -19.4473,
+  "Q748270",
+  "Fimmvörðuháls"
+ ],
+ "studlagil": [
+  65.1626,
+  -15.3075,
+  "Q97260351",
+  "Stuðlagil"
+ ],
+ "hengifoss": [
+  65.0951,
+  -14.889,
+  "Q1605186",
+  "Hengifoss"
+ ],
+ "seydisfjordur": [
+  65.3022,
+  -13.8139,
+  "Q2275965",
+  "Seyðisfjörður"
+ ],
+ "storurd": [
+  65.55,
+  -14.38,
+  "manual",
+  "Stórurð"
+ ],
+ "vok": [
+  65.295,
+  -14.44,
+  "manual",
+  "Vök Baths"
+ ],
+ "mjoifjordur": [
+  65.1953,
+  -13.7864,
+  "Q1550483",
+  "Mjóifjörður"
+ ],
+ "djupivogur": [
+  64.6586,
+  -14.2831,
+  "Q1232324",
+  "Djúpivogur"
+ ],
+ "dettifoss": [
+  65.8219,
+  -16.3882,
+  "Q210280",
+  "Dettifoss"
+ ],
+ "selfoss_north": [
+  63.9322,
+  -21.0002,
+  "Q192898",
+  "Selfoss"
+ ],
+ "asbyrgi": [
+  66.0144,
+  -16.5033,
+  "Q252506",
+  "Ásbyrgi"
+ ],
+ "hljodaklettar": [
+  65.9443,
+  -16.5328,
+  "Q3785987",
+  "Hljóðaklettar"
+ ],
+ "myvatn": [
+  65.6,
+  -17,
+  "Q212051",
+  "Mývatn"
+ ],
+ "dimmuborgir": [
+  65.5903,
+  -16.8994,
+  "Q1000285",
+  "Dimmuborgir"
+ ],
+ "hverir": [
+  65.6403,
+  -16.8092,
+  "manual",
+  "Hverir"
+ ],
+ "krafla": [
+  65.7333,
+  -16.7833,
+  "Q752994",
+  "Krafla"
+ ],
+ "grjotagja": [
+  65.6272,
+  -16.8817,
+  "Q966241",
+  "Grjótagjá"
+ ],
+ "godafoss": [
+  65.6831,
+  -17.5504,
+  "Q1137629",
+  "Goðafoss"
+ ],
+ "husavik": [
+  66.0439,
+  -17.3417,
+  "Q219417",
+  "Húsavík"
+ ],
+ "siglufjordur": [
+  66.1519,
+  -18.9081,
+  "Q1887662",
+  "Siglufjörður"
+ ],
+ "hvitserkur": [
+  65.6064,
+  -20.6353,
+  "Q201855",
+  "Hvítserkur"
+ ],
+ "kolugljufur": [
+  65.3336,
+  -20.5786,
+  "Q2540531",
+  "Kolugljúfur"
+ ],
+ "vatnsnes": [
+  65.5764,
+  -20.7778,
+  "Q1515196",
+  "Vatnsnes"
+ ],
+ "akureyri": [
+  65.6835,
+  -18.0878,
+  "Q29042",
+  "Akureyri"
+ ],
+ "grettislaug": [
+  65.836,
+  -19.66,
+  "manual",
+  "Grettislaug"
+ ],
+ "kirkjufell": [
+  64.9475,
+  -23.3108,
+  "Q1547402",
+  "Kirkjufell"
+ ],
+ "snaefellsjokull": [
+  64.8071,
+  -23.7762,
+  "Q1315012",
+  "Snæfellsjökull"
+ ],
+ "djupalonssandur": [
+  64.7523,
+  -23.9013,
+  "Q5285420",
+  "Djúpalónssandur"
+ ],
+ "arnarstapi": [
+  64.7699,
+  -23.6223,
+  "Q774048",
+  "Arnarstapi"
+ ],
+ "londrangar": [
+  64.7333,
+  -23.7833,
+  "Q3480544",
+  "Lóndrangar"
+ ],
+ "svortuloft": [
+  64.8636,
+  -24.0393,
+  "Q3378416",
+  "Svörtuloft Lighthouse"
+ ],
+ "ytritunga": [
+  64.803,
+  -23.081,
+  "Q137838904",
+  "Ytri-Tunga"
+ ],
+ "berserkjahraun": [
+  64.9631,
+  -22.9711,
+  "Q827242",
+  "Berserkjahraun"
+ ],
+ "budir": [
+  64.8207,
+  -23.3863,
+  "Q1020278",
+  "Búðir"
+ ],
+ "hraunfossar": [
+  64.7028,
+  -20.9798,
+  "Q427971",
+  "Hraunfossar"
+ ],
+ "deildartunguhver": [
+  64.6631,
+  -21.4092,
+  "Q1183213",
+  "Deildartunguhver"
+ ],
+ "glymur": [
+  64.3958,
+  -21.2411,
+  "Q38577",
+  "Glymur"
+ ],
+ "vidgelmir": [
+  64.7484,
+  -20.7966,
+  "Q626642",
+  "Víðgelmir"
+ ],
+ "dynjandi": [
+  65.7325,
+  -23.1981,
+  "Q281535",
+  "Dynjandi"
+ ],
+ "latrabjarg": [
+  65.5,
+  -24.5333,
+  "Q554480",
+  "Látrabjarg"
+ ],
+ "raudasandur": [
+  65.4817,
+  -24.0792,
+  "Q16424174",
+  "Rauðisandur"
+ ],
+ "hornstrandir": [
+  66.3889,
+  -22.5288,
+  "Q303543",
+  "Hornstrandir"
+ ],
+ "hornbjarg": [
+  66.4493,
+  -22.4099,
+  "Q15295859",
+  "Hornbjarg"
+ ],
+ "djupavik": [
+  65.9447,
+  -21.5569,
+  "Q256512",
+  "Djúpavík"
+ ],
+ "krossneslaug": [
+  66.05,
+  -21.513,
+  "Q666834",
+  "Krossnes"
+ ],
+ "drangsnes": [
+  65.6902,
+  -21.4364,
+  "Q2458886",
+  "Drangsnes"
+ ],
+ "isafjordur": [
+  66.0738,
+  -23.1417,
+  "Q106896",
+  "Ísafjörður"
+ ],
+ "arnarfjordur": [
+  65.7618,
+  -23.7167,
+  "Q690949",
+  "Arnarfjörður"
+ ],
+ "arcticfox": null,
+ "reykjadalur": [
+  64.0408,
+  -21.2186,
+  "Q2147137",
+  "Reykjadalur"
+ ],
+ "seltun": [
+  63.8952,
+  -22.0561,
+  "Q16425194",
+  "Seltún"
+ ],
+ "kleifarvatn": [
+  63.9268,
+  -21.9702,
+  "Q574165",
+  "Kleifarvatn"
+ ],
+ "brimketill": [
+  63.8325,
+  -22.6127,
+  "Q27016710",
+  "Brimketill"
+ ],
+ "fagradalsfjall": [
+  63.905,
+  -22.2725,
+  "Q27015522",
+  "Fagradalsfjall"
+ ],
+ "bluelagoon": [
+  63.8792,
+  -22.4455,
+  "Q886946",
+  "Blue Lagoon"
+ ],
+ "skylagoon": [
+  64.1475,
+  -21.935,
+  "Q1764",
+  "Reykjavík"
+ ],
+ "heimaey": [
+  63.4167,
+  -20.2833,
+  "Q211182",
+  "Heimaey"
+ ],
+ "storhofdi": [
+  63.3995,
+  -20.2883,
+  "Q16427726",
+  "Stórhöfði"
+ ],
+ "solheimasandur": [
+  63.4758,
+  -19.3654,
+  "Q26999955",
+  "Sólheimasandur"
+ ],
+ "svinafellsjokull": [
+  64.0199,
+  -16.8235,
+  "Q2142443",
+  "Svínafellsjökull"
+ ],
+ "icelandichorse": null,
+ "midnightsun": null,
+ "campervan": null,
+ "ringroad": null,
+ "froad": null,
+ "reykjavik": [
+  64.1475,
+  -21.935,
+  "Q1764",
+  "Reykjavík"
+ ]
+}

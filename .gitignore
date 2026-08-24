@@ -1,0 +1,9 @@
+# fotos originales descargadas de Commons (se regeneran con fuentes/descargar_fotos.py)
+fuentes/raw/
+fuentes/raw2/
+fuentes/lib/
+fuentes/fonts/
+fuentes/sheets/
+*.pyc
+__pycache__/
+.DS_Store
