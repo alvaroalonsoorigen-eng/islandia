@@ -46,6 +46,22 @@ def coastline(path="iceland-natural-earth.geojson", min_pts=12, eps=0.9):
     return " ".join(out)
 
 
+def bezier_cmds(points, tension=0.5):
+    """Catmull-Rom a bezier, devolviendo un comando por tramo entre puntos."""
+    if len(points) < 2:
+        return []
+    if len(points) == 2:
+        return ["L%g %g" % points[1]]
+    cmds = []
+    ext = [points[0]] + list(points) + [points[-1]]
+    for i in range(1, len(ext) - 2):
+        p0, p1, p2, p3 = ext[i - 1], ext[i], ext[i + 1], ext[i + 2]
+        c1 = (p1[0] + (p2[0] - p0[0]) / 6.0 * tension * 2, p1[1] + (p2[1] - p0[1]) / 6.0 * tension * 2)
+        c2 = (p2[0] - (p3[0] - p1[0]) / 6.0 * tension * 2, p2[1] - (p3[1] - p1[1]) / 6.0 * tension * 2)
+        cmds.append("C%.1f %.1f %.1f %.1f %.1f %.1f" % (c1[0], c1[1], c2[0], c2[1], p2[0], p2[1]))
+    return cmds
+
+
 def smooth(points, tension=0.5):
     """Catmull-Rom -> cubic bezier, para un trazo de expedición sin picos."""
     if len(points) < 2:
@@ -63,10 +79,14 @@ def smooth(points, tension=0.5):
     return " ".join(d)
 
 
-def route_geometry(route, coords):
-    """Trazado esquemático: una ancla por día, de Keflavík a Keflavík."""
+def route_paths(route, coords):
+    """Trazado esquemático de una ruta, partido en un tramo por día.
+
+    Devuelve (camino_completo, tramos, nodos). Cada tramo lleva el número de día
+    al que pertenece, para poder encenderlo cuando se está leyendo ese día.
+    """
     kef = proj(-22.6056, 63.9850)
-    nodes, anchors = [], []
+    pts, owner, nodes = [kef], [0], []
     for day in route["dias_detalle"]:
         dpts = []
         for s in day["stops"]:
@@ -78,13 +98,28 @@ def route_geometry(route, coords):
             my = sum(q[1] for q in dpts) / len(dpts)
             anchor = min(dpts, key=lambda q: (q[0] - mx) ** 2 + (q[1] - my) ** 2)
         else:
-            anchor = anchors[-1] if anchors else kef
-        anchors.append(anchor)
+            anchor = pts[-1]
         nodes.append({"d": day["d"], "x": anchor[0], "y": anchor[1]})
-    pts = [kef]
-    for a in anchors:
-        if abs(a[0] - pts[-1][0]) + abs(a[1] - pts[-1][1]) > 2:
-            pts.append(a)
+        if abs(anchor[0] - pts[-1][0]) + abs(anchor[1] - pts[-1][1]) > 2:
+            pts.append(anchor)
+            owner.append(day["d"])
     if abs(pts[-1][0] - kef[0]) + abs(pts[-1][1] - kef[1]) > 2:
         pts.append(kef)
-    return smooth(pts, 0.4), nodes
+        owner.append(owner[-1])                 # la vuelta al aeropuerto es del último día
+    cmds = bezier_cmds(pts, 0.4)
+    full = "M%g %g " % pts[0] + " ".join(cmds)
+    segs, i = [], 0
+    while i < len(cmds):
+        d = owner[i + 1]
+        j = i
+        while j < len(cmds) and owner[j + 1] == d:
+            j += 1
+        segs.append({"d": d, "path": "M%g %g " % pts[i] + " ".join(cmds[i:j])})
+        i = j
+    return full, segs, nodes
+
+
+def route_geometry(route, coords):
+    """Compatibilidad: solo el trazado completo y los nodos."""
+    full, _segs, nodes = route_paths(route, coords)
+    return full, nodes

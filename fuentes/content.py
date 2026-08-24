@@ -585,6 +585,6 @@ for _r in ROUTES:
         for _x in _s:
             _out.append(_x)
             _extra = _AFTER.get(_x)
-            if _extra and _extra not in _s:
+            if _extra and _extra not in _s and _extra not in _out:
                 _out.append(_extra)
         _d["stops"] = _out

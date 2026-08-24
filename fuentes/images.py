@@ -25,17 +25,43 @@ def encode(path, size, quality):
     return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
 
 
+def cargar_cache():
+    """Fotos ya codificadas de una generación anterior (ver recuperar_fotos.py).
+
+    Evita volver a descargar de Commons cuando solo cambian diseño o textos.
+    """
+    p = os.path.join(BASE, "imgcache.json")
+    return json.load(open(p)) if os.path.exists(p) else {}
+
+
 def build(used, hero_slugs=(), card_q=44, hero_q=52):
     photos = json.load(open(os.path.join(BASE, "photos.json")))
+    cache = cargar_cache()
     IMG, GAL, credits = {}, {}, []
     for slug in sorted(used):
         items = photos.get(slug, [])
         out = []
         for i, p in enumerate(items):
             key = "%s%d" % (slug, i)
-            IMG[key] = encode(os.path.join(BASE, p["file"]), CARD, card_q)
+            if key in cache:
+                IMG[key] = cache[key]
+            else:
+                IMG[key] = encode(os.path.join(BASE, p["file"]), CARD, card_q)
             out.append({"k": key, "a": p["author"][:80], "l": p["license"]})
             credits.append((p["title"], p["author"][:90], p["license"], p["page"]))
         GAL[slug] = out
-    HEROIMG = {s: encode(os.path.join(BASE, photos[s][0]["file"]), HERO, hero_q) for s in hero_slugs}
+    HEROIMG = {}
+    for slug in hero_slugs:
+        nombre = photos[slug][0].get("title", "")
+        clave = "hero:" + nombre.rsplit(".", 1)[0]
+        if clave in cache:
+            HEROIMG[slug] = cache[clave]
+        elif "hero:" + slug in cache:
+            HEROIMG[slug] = cache["hero:" + slug]
+        else:
+            candidatos = [v for k, v in cache.items() if k.startswith("hero:")]
+            if candidatos and slug == list(hero_slugs)[0]:
+                HEROIMG[slug] = candidatos[0]     # la portada anterior
+            else:
+                HEROIMG[slug] = encode(os.path.join(BASE, photos[slug][0]["file"]), HERO, hero_q)
     return IMG, GAL, HEROIMG, credits

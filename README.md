@@ -58,3 +58,23 @@ Es un documento de planificación, no una guía publicada. Los precios son media
 mercado de 2026 y las fechas de apertura de las pistas F son promedios históricos: el
 dato real de cada día está en [road.is](https://www.road.is) y el viento en
 [vedur.is](https://www.vedur.is).
+
+## Cómo funciona el mapa
+
+Cada ruta lleva su mapa en SVG, sin librerías ni conexión: el contorno de Islandia sale
+de Natural Earth (`fuentes/iceland-natural-earth.geojson`) proyectado en `geo.py`, y el
+trazado se parte en **un tramo por día**. Al leer un día se encienden todos sus tramos
+anteriores, se marca su círculo y el pie del mapa dice qué día es. En móvil el mapa se
+queda fijo bajo la barra y se contrae a una tira con el día actual y el avance de la
+ruta; se abre y se cierra tocándola.
+
+Antes esto lo dibujaba GSAP en función del scroll de la página, y el trazado se quedaba
+a medias sin corresponder con el día que se estaba leyendo. Ahora no hay dependencia de
+scroll: el estado del mapa se calcula desde el día visible.
+
+## Regenerar sin volver a descargar las fotos
+
+`fuentes/recuperar_fotos.py` extrae del `index.html` anterior las 301 fotos ya
+codificadas y las deja en `fuentes/imgcache.json`, que `build.py` usa en lugar de
+recortar los originales. Con eso se puede cambiar diseño, mapas o textos en segundos y
+sin pedirle nada a Commons (que además corta la descarga por exceso de peticiones).

@@ -8,7 +8,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(BASE, os.environ.get("OUTNAME", "islandia-2027.html"))
 ONLY = [x for x in os.environ.get("ONLY_ROUTES", "").split(",") if x]
 MAXPH = int(os.environ.get("MAX_PHOTOS", "0"))
-HEROES = ["landmannalaugar", "midnightsun", "hornstrandir"]
+HEROES = ["landmannalaugar"]        # solo la portada usa foto a tamaño grande
 
 def e(s):
     return html.escape(str(s), quote=False)
@@ -42,25 +42,35 @@ def map_svg(route=None, cls="rmap"):
             for day in r["dias_detalle"]:
                 used.update(day["stops"])
         pts = []
-        for s in sorted(used):
-            c = COORDS.get(s)
+        for slug in sorted(used):
+            c = COORDS.get(slug)
             if not c:
                 continue
             x, y = geo.proj(c[1], c[0])
             pts.append('<circle class="spot" cx="%g" cy="%g" r="3.4"/>' % (x, y))
         kx, ky = geo.proj(-22.6056, 63.9850)
         inner = "".join(pts) + ('<g class="kef"><circle cx="%g" cy="%g" r="6"/>'
-                                '<text x="%g" y="%g">KEF</text></g>' % (kx, ky, kx + 12, ky + 4))
-        nodes = ""
-    else:
-        d, nds = geo.route_geometry(route, COORDS)
-        inner = '<path class="trace" d="%s"/>' % d
-        nodes = "".join(
-            '<g class="node" data-day="%d" transform="translate(%g,%g)">'
-            '<circle class="halo" r="13"/><circle class="dot" r="5.5"/>'
-            '<text y="3.6">%d</text></g>' % (n["d"], n["x"], n["y"], n["d"]) for n in nds)
-    return ('<svg class="%s" viewBox="0 0 1000 660" role="img" aria-label="Mapa de Islandia con el trazado">'
-            '<path class="coast" d="%s"/>%s%s</svg>') % (cls, COAST, inner, nodes)
+                                '<text x="%g" y="%g">KEF</text></g>' % (kx, ky, kx + 16, ky + 7))
+        return ('<svg class="%s" viewBox="0 0 1000 660" role="img" '
+                'aria-label="Mapa de Islandia con todas las paradas del documento">'
+                '<path class="coast" d="%s"/>%s</svg>') % (cls, COAST, inner)
+
+    full, segs, nds = geo.route_paths(route, COORDS)
+    trazo = '<path class="rline" d="%s"/>' % full
+    tramos = '<g class="segs">%s</g>' % "".join(
+        '<path class="seg" data-day="%d" d="%s"/>' % (sg["d"], sg["path"]) for sg in segs)
+    kx, ky = geo.proj(-22.6056, 63.9850)
+    base = ('<g class="kef"><circle cx="%g" cy="%g" r="8"/><text x="%g" y="%g">KEF</text></g>'
+            % (kx, ky, kx + 15, ky + 7))
+    nodos = '<g class="nodes">%s</g>' % "".join(
+        '<g class="node" data-day="%d" tabindex="0" role="button" aria-label="Ir al día %d" '
+        'transform="translate(%g,%g)"><circle class="hit" r="17"/><circle class="halo" r="13"/>'
+        '<circle class="dot" r="13"/><text y="7">%d</text></g>'
+        % (n["d"], n["d"], n["x"], n["y"], n["d"]) for n in nds)
+    return ('<svg class="%s" viewBox="0 0 1000 660" role="img" '
+            'aria-label="Mapa esquemático de la ruta %s, día a día">'
+            '<path class="coast" d="%s"/>%s%s%s%s</svg>') % (cls, route["id"], COAST, trazo, tramos,
+                                                             base, nodos)
 
 # --------------------------------------------------------------------- CSS
 CSS = """
@@ -197,31 +207,47 @@ ul.ticks.warn li::before{background:var(--rust);border-radius:99px}
   color:var(--glacier);margin:0 0 .8em}
 .route-head h2{font-size:clamp(38px,6.4vw,86px);position:relative;z-index:1}
 .route-head .claim{font-size:clamp(16px,1vw + 12px,21px);color:#C6D6DB;max-width:44ch;margin:.7em 0 0;position:relative;z-index:1}
-.route-body{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:clamp(24px,3.4vw,56px);align-items:start}
-.route-aside{position:sticky;top:76px}
+.route-body{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:clamp(24px,3.4vw,56px);align-items:start}
+.route-aside{position:sticky;top:70px}
 .map-wrap{border:1px solid var(--line);border-radius:8px;background:
   linear-gradient(#0A1216,#0A1216) padding-box,
   repeating-linear-gradient(0deg,#ffffff05 0 1px,transparent 1px 34px),
   repeating-linear-gradient(90deg,#ffffff05 0 1px,transparent 1px 34px);
   background-blend-mode:normal;padding:6px;margin-bottom:14px;position:relative}
-.maphint{font-size:11.5px;color:var(--dim2);margin:-6px 0 14px;line-height:1.45}
 .map-wrap::after{content:attr(data-lab);position:absolute;bottom:8px;right:10px;font-family:var(--mono);
   font-size:8.5px;letter-spacing:.14em;color:var(--dim2);text-transform:uppercase}
 svg.rmap{width:100%;height:auto;display:block}
 svg .coast{fill:#0E181D;stroke:var(--line2);stroke-width:1.1;vector-effect:non-scaling-stroke}
-svg .trace{fill:none;stroke:var(--sulfur);stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round;
-  filter:drop-shadow(0 0 6px rgba(242,178,51,.35))}
-svg .spot{fill:var(--glacier);opacity:.9}
+svg .rline{fill:none;stroke:rgba(124,198,222,.36);stroke-width:3;stroke-linejoin:round;stroke-dasharray:7 11}
+svg .seg{fill:none;stroke:var(--sulfur);stroke-width:6;stroke-linejoin:round;stroke-linecap:round;
+  opacity:0;transition:opacity .3s ease,stroke-dashoffset .55s ease,stroke-width .3s}
+svg .seg.done{opacity:.92}
+svg .seg.now{opacity:1;stroke-width:8.5;filter:drop-shadow(0 0 7px rgba(242,178,51,.6))}
+svg .spot{fill:var(--glacier);opacity:.92}
 svg.hmap .coast{fill:rgba(14,24,29,.55);stroke:rgba(124,198,222,.5)}
-svg .kef circle{fill:none;stroke:var(--sulfur);stroke-width:1.4}
-svg .kef text{font-family:var(--mono);font-size:10px;fill:var(--sulfur);letter-spacing:.1em}
+svg .kef circle{fill:none;stroke:var(--glacier);stroke-width:2.6}
+svg .kef text{font-family:var(--mono);font-size:19px;fill:var(--glacier);letter-spacing:.06em}
 svg .node{cursor:pointer}
-svg .node .halo{fill:rgba(242,178,51,.14);opacity:0;transition:opacity .25s}
-svg .node .dot{fill:#0A1014;stroke:var(--sulfur);stroke-width:1.6;transition:fill .25s,r .25s}
-svg .node text{font-family:var(--mono);font-size:9px;fill:var(--bone);text-anchor:middle;pointer-events:none;opacity:.75}
+svg .node .hit{fill:transparent}
+svg .node .halo{fill:rgba(242,178,51,.16);opacity:0;transition:opacity .25s;r:26}
+svg .node .dot{fill:#0A1014;stroke:rgba(124,198,222,.55);stroke-width:3;transition:fill .3s,stroke .3s}
+svg .node text{font-family:var(--mono);font-weight:500;font-size:20px;fill:var(--dim);text-anchor:middle;
+  pointer-events:none;transition:fill .3s}
+svg .node.done .dot{stroke:var(--sulfur)}
+svg .node.done text{fill:var(--bone)}
 svg .node:hover .halo,svg .node.on .halo{opacity:1}
-svg .node.on .dot{fill:var(--sulfur)}
-svg .node.on text{fill:#12181B;opacity:1;font-weight:600}
+svg .node:hover .dot{stroke:var(--sulfur)}
+svg .node.on .dot{fill:var(--sulfur);stroke:var(--sulfur)}
+svg .node.on text{fill:#12181B;font-weight:600}
+svg .node:focus-visible{outline:none}
+svg .node:focus-visible .halo{opacity:1;fill:rgba(242,178,51,.32)}
+.route-map{position:relative}
+.map-toggle{display:none}
+.mapnow{display:flex;gap:9px;align-items:baseline;font-size:12.5px;color:#C6D6DB;margin:-2px 0 14px;
+  min-height:3.1em;line-height:1.4}
+.mapnow b{font-family:var(--mono);font-size:10px;letter-spacing:.13em;color:var(--sulfur);
+  white-space:nowrap;padding-top:2px}
+.mapnow.idle,.mapnow.idle b{color:var(--dim2)}
 .stats{display:grid;grid-template-columns:auto 1fr;gap:1px;margin:0 0 14px;border:1px solid var(--line);background:var(--line)}
 .stats dt,.stats dd{background:#0B1216;margin:0;padding:8px 12px;font-size:13.5px}
 .stats dt{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim2);padding-top:11px}
@@ -299,16 +325,139 @@ details.creds summary{cursor:pointer;font-family:var(--mono);font-size:10.5px;le
   border:1px solid var(--line);padding:14px;border-radius:6px}
 .credlist div{break-inside:avoid;margin-bottom:.35em}
 
-@media (max-width:900px){
-  .route-body{grid-template-columns:1fr}
-  .route-aside{position:static}
-  .map-wrap{max-width:520px}
-  .hero .hmap{position:relative;right:auto;top:auto;width:100%;max-width:420px;margin:2em 0 0;opacity:.6}
-  .tl li{grid-template-columns:1fr}
+/* ---------------- desplazamiento y anclas ---------------- */
+section,article.route{scroll-margin-top:60px}
+.day{scroll-margin-top:64px}
+.stop .sw{overscroll-behavior-x:contain;touch-action:pan-y}
+
+/* ---------------- pantallas sin hover: los controles no se pueden esconder ---------------- */
+@media (hover:none){
+  .stop .swiper-button-next,.stop .swiper-button-prev{opacity:.9;width:34px;height:34px;
+    --swiper-navigation-size:15px}
+  .stop:hover .swiper-button-next,.stop:hover .swiper-button-prev{opacity:.9}
+  .stop .swiper-pagination-bullet{width:7px;height:7px}
+  .stop .swiper-pagination-bullet-active{width:18px}
+  svg .node .hit{r:38}
 }
+
+/* ---------------- tablet y móvil: mapa fijo que se contrae ---------------- */
+@media (max-width:900px){
+  .route-body{display:block}
+  /* display:contents saca al mapa del bloque lateral: así puede quedarse fijo
+     mientras se recorren los días, que están en otro bloque hermano */
+  .route-aside{display:contents}
+  .map-wrap{max-width:none;margin-bottom:10px}
+  .mapnow{display:none}
+  .route-facts{padding-top:14px}
+  /* el mapa se queda pegado bajo la barra mientras se leen los días */
+  .route-map{position:sticky;top:49px;z-index:25;margin:0 calc(var(--gut)*-1) 14px;
+    padding:8px var(--gut) 0;background:#080D10;border-bottom:1px solid transparent;
+    transition:border-color .3s ease,box-shadow .35s ease}
+  .route-map[data-state=mini]{border-bottom-color:var(--line);box-shadow:0 10px 24px -18px #000}
+  .route-map .map-wrap{max-height:44vh;overflow:hidden;
+    transition:max-height .42s cubic-bezier(.33,1,.68,1),opacity .28s ease,
+               margin-bottom .42s cubic-bezier(.33,1,.68,1),padding .42s ease,border-width .3s ease}
+  .route-map[data-state=mini] .map-wrap{max-height:0;opacity:0;margin-bottom:0;padding-top:0;
+    padding-bottom:0;border-width:0}
+  .route-map[data-state=mini] .map-wrap::after{opacity:0}
+  /* la barra: día actual, avance de la ruta y botón de abrir o cerrar */
+  .map-toggle{display:flex;align-items:center;gap:10px;width:100%;padding:9px 2px 10px;
+    background:none;border:0;color:var(--bone);font:inherit;text-align:left;cursor:pointer;
+    -webkit-tap-highlight-color:transparent}
+  .map-toggle .mt-day{font-family:var(--mono);font-size:10px;letter-spacing:.13em;color:var(--sulfur);
+    white-space:nowrap}
+  .map-toggle .mt-txt{font-size:13.5px;color:#C6D6DB;overflow:hidden;text-overflow:ellipsis;
+    white-space:nowrap;flex:1 1 auto;min-width:0}
+  .map-toggle .mt-bar{position:absolute;left:var(--gut);right:var(--gut);bottom:0;height:2px;
+    background:#ffffff14;border-radius:2px;overflow:hidden}
+  .map-toggle .mt-bar i{display:block;height:100%;background:var(--sulfur);width:0;
+    transition:width .45s cubic-bezier(.33,1,.68,1)}
+  .route-map[data-state=open] .mt-bar{opacity:.5}
+  .map-toggle .mt-ico{width:22px;height:22px;flex:0 0 auto;border:1px solid var(--line2);border-radius:99px;
+    position:relative;transition:transform .35s cubic-bezier(.33,1,.68,1),border-color .3s}
+  .map-toggle .mt-ico::before,.map-toggle .mt-ico::after{content:"";position:absolute;top:50%;left:50%;
+    width:7px;height:1.5px;background:var(--glacier);border-radius:2px;transition:transform .35s}
+  .map-toggle .mt-ico::before{transform:translate(-85%,-50%) rotate(45deg)}
+  .map-toggle .mt-ico::after{transform:translate(-15%,-50%) rotate(-45deg)}
+  .route-map[data-state=mini] .mt-ico{transform:rotate(180deg)}
+  .map-toggle:active .mt-ico{border-color:var(--sulfur)}
+  /* el día que se está leyendo se marca, para saber a qué se refiere el mapa */
+  .day{transition:background .35s ease}
+  .day.on{background:linear-gradient(90deg,rgba(242,178,51,.07),transparent 62%)}
+  .stop{transition:transform .18s ease}
+  .stop:active{transform:scale(.985)}
+  .hero{display:block;min-height:auto}
+  .hero .hmap{position:relative;right:auto;top:auto;width:100%;max-width:440px;
+    margin:0 auto;padding:0 var(--gut) 2.6em;opacity:.9}
+  .tl li{grid-template-columns:1fr}
+  .credlist{columns:1;max-height:340px}
+  svg .node .halo{r:32}
+  svg .node .dot{r:15}
+  svg .node text{font-size:24px}
+  svg .kef text{font-size:22px}
+  svg .seg{stroke-width:7}
+  svg .rline{stroke-width:3.4}
+}
+
+/* ---------------- móvil ---------------- */
+@media (max-width:640px){
+  :root{--gut:16px}
+  body{font-size:15.5px}
+  .topbar .wrap{height:48px;gap:12px}
+  .topbar nav{gap:1px}
+  .topbar nav a{padding:5px 7px;font-size:10px;letter-spacing:.1em}
+  .hero .wrap{padding-top:54px;padding-bottom:34px}
+  .hero h1{font-size:clamp(46px,15.5vw,84px);margin-bottom:.28em}
+  .hero-data{grid-template-columns:1fr 1fr;margin-top:2em}
+  .hero-data>div:last-child:nth-child(odd){grid-column:1/-1}
+  .hero-data dd{font-size:20px}
+  .lede{font-size:16.5px}
+  .shead{gap:6px;margin-bottom:1.7em}
+  .shead h2{font-size:clamp(26px,7.8vw,40px)}
+  .shead p{font-size:14.5px}
+  .win{padding:18px 16px}
+  .win h3{font-size:24px}
+  .win dl{grid-template-columns:1fr;gap:2px 0}
+  .win dt{padding-top:8px}
+  .rung{grid-template-columns:62px 1fr}
+  .rung .d{padding:14px 6px}
+  .rung .d b{font-size:21px}
+  .rung .c{grid-template-columns:1fr;padding:14px}
+  .rung .c .km{grid-row:auto;margin-bottom:2px}
+  .route-head h2{font-size:clamp(32px,9.4vw,52px)}
+  .route-head .claim{font-size:16px}
+  .route-head .rid{font-size:104px;top:-.1em;opacity:.55}
+  .day{padding:22px 0 24px}
+  .day-head{gap:10px}
+  .day-head h3{min-width:0;flex:1 1 100%;order:2;font-size:19.5px}
+  .day-head .dn{order:1}
+  .day-head .km{order:1;margin-left:auto}
+  .stops{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+  .stop figcaption{padding:10px 11px 11px}
+  .stop figcaption b{font-size:14.5px}
+  .money td,.money th,.cmp th,.cmp td{padding:10px 11px}
+  .grid3{gap:12px}
+  .card .bd{padding:14px 15px}
+  footer h3{font-size:19px}
+}
+@media (max-width:400px){
+  .stops{grid-template-columns:1fr}
+}
+@media (max-width:340px){
+  .hero-data{grid-template-columns:1fr}
+}
+
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *{animation-duration:.001s!important;transition-duration:.001s!important}
+}
+
+/* ---------------- impresión y PDF ---------------- */
+@media print{
+  body{background:#fff;color:#111}
+  .topbar,.hero .hmap{display:none}
+  .route-aside{position:static}
+  .day,.stop,.win,.card{break-inside:avoid}
 }
 """
 
@@ -332,6 +481,8 @@ JS = """
   }
   // 1. pintar las tarjetas de cada día cuando se acercan a la pantalla
   function vh(){return window.innerHeight||document.documentElement.clientHeight||screen.height||800}
+  var mqEstrecho=matchMedia('(max-width:900px)');
+  function estrecho(){return mqEstrecho.matches}
   var boxes=[].slice.call(document.querySelectorAll('.stops'));
   function fill(box){
     if(box.__done)return; box.__done=1;
@@ -358,10 +509,10 @@ JS = """
       if(r.top<margin&&r.bottom>-margin)fill(b);
     }
   }
-  function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(sweep)}}
+  function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(function(){sweep();sincroniza()})}}
   addEventListener('scroll',onScroll,{passive:true});
   addEventListener('resize',onScroll);
-  sweep();
+  addEventListener('orientationchange',onScroll);
   // red de seguridad: si algo impide medir la pantalla, se pintan por lotes al quedar libre
   var idle=window.requestIdleCallback||function(f){setTimeout(f,600)};
   (function drip(){
@@ -371,46 +522,115 @@ JS = """
     idle(function(){setTimeout(drip,1200)});
   })();
 
-  addEventListener('beforeprint',function(){boxes.forEach(fill);
-    document.querySelectorAll('svg .trace').forEach(function(p){p.style.strokeDashoffset=0})});
-
-  // 2. dibujar el trazado del mapa a la vez que se leen los días
   var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-  if(window.gsap&&window.ScrollTrigger&&!reduce){
-    gsap.registerPlugin(ScrollTrigger);
-    document.querySelectorAll('.route').forEach(function(rt){
-      var path=rt.querySelector('svg .trace'),list=rt.querySelector('.days');
-      if(!path||!list)return;
-      var len=path.getTotalLength();
-      gsap.set(path,{strokeDasharray:len,strokeDashoffset:len});
-      gsap.to(path,{strokeDashoffset:0,ease:'none',
-        scrollTrigger:{trigger:list,start:'top 78%',end:'bottom 65%',scrub:.6}});
-    });
-  }else{
-    document.querySelectorAll('svg .trace').forEach(function(p){p.style.strokeDashoffset=0});
-  }
 
-  // 3. día activo <-> nodo del mapa
+  // 2. mapa sincronizado con el día que se está leyendo
+  //    Cada día tiene su tramo de trazado: se encienden todos los del día actual
+  //    hacia atrás, así el mapa cuenta por dónde vais en cada momento.
+  var rutas=[];
   document.querySelectorAll('.route').forEach(function(rt){
-    var days=rt.querySelectorAll('.day'),nodes=rt.querySelectorAll('svg .node');
-    function mark(d){
-      days.forEach(function(x){x.classList.toggle('on',x.dataset.day===d)});
-      nodes.forEach(function(x){x.classList.toggle('on',x.dataset.day===d)});
+    var days=[].slice.call(rt.querySelectorAll('.day'));
+    var segs=[].slice.call(rt.querySelectorAll('svg .seg'));
+    var nodes=[].slice.call(rt.querySelectorAll('svg .node'));
+    var lab=rt.querySelector('.mapnow'), labTxt=lab&&lab.querySelector('span');
+    var idle=lab?lab.dataset.idle:'';
+    var mapa=rt.querySelector('.route-map'), boton=rt.querySelector('.map-toggle');
+    var mtDay=boton&&boton.querySelector('.mt-day'), mtTxt=boton&&boton.querySelector('.mt-txt');
+    var mtBar=boton&&boton.querySelector('.mt-bar i');
+    var etiqueta=mtDay?mtDay.textContent:'', total=days.length, manual=false;
+    function estadoMapa(v){
+      if(!mapa||mapa.dataset.state===v)return;
+      mapa.dataset.state=v;
+      if(boton)boton.setAttribute('aria-expanded',String(v==='open'));
     }
-    var io=new IntersectionObserver(function(es){
-      es.forEach(function(en){if(en.isIntersecting)mark(en.target.dataset.day)});
-    },{rootMargin:'-45% 0px -45% 0px'});
-    days.forEach(function(d){
-      io.observe(d);
-      d.addEventListener('mouseenter',function(){mark(d.dataset.day)});
+    if(boton)boton.addEventListener('click',function(){
+      manual=true;
+      estadoMapa(mapa.dataset.state==='mini'?'open':'mini');
     });
+    segs.forEach(function(sg){
+      var L=sg.getTotalLength()||1;
+      sg.dataset.len=L;
+      sg.style.strokeDasharray=L;
+      sg.style.strokeDashoffset=L;
+    });
+    var estado=-1;
+    function pinta(act,titulo){
+      if(act===estado)return;
+      estado=act;
+      segs.forEach(function(sg){
+        var d=+sg.dataset.day, hecho=d<=act;
+        sg.classList.toggle('done',hecho);
+        sg.classList.toggle('now',d===act);
+        sg.style.strokeDashoffset=hecho?0:sg.dataset.len;
+      });
+      nodes.forEach(function(n){
+        var d=+n.dataset.day;
+        n.classList.toggle('done',d<=act);
+        n.classList.toggle('on',d===act);
+      });
+      days.forEach(function(x){x.classList.toggle('on',+x.dataset.day===act)});
+      if(boton){
+        mtDay.textContent=act>0?('Día '+(act<10?'0':'')+act):etiqueta;
+        mtTxt.textContent=act>0&&titulo?titulo:'Mapa por días';
+        mtBar.style.width=(act/total*100)+'%';
+      }
+      if(!lab)return;
+      if(act>0&&titulo){
+        lab.classList.remove('idle');
+        lab.querySelector('b').textContent='Día '+(act<10?'0':'')+act;
+        labTxt.textContent=titulo;
+      }else{
+        lab.classList.add('idle');
+        labTxt.textContent=idle;
+      }
+    }
+    var r={el:rt,days:days,pinta:pinta,
+      calcula:function(){
+        var linea=vh()*0.42, act=0, titulo='';
+        for(var i=0;i<days.length;i++){
+          var caja=days[i].getBoundingClientRect();
+          if(caja.top<=linea){act=+days[i].dataset.day;
+            var h=days[i].querySelector('h3'); titulo=h?h.textContent:'';}
+        }
+        var caja=rt.getBoundingClientRect();
+        if(caja.top>vh())act=0;                       // la ruta aún no ha empezado
+        pinta(act,titulo);
+        // en móvil el mapa se contrae al entrar en los días y se abre al volver arriba
+        if(mapa&&estrecho()){
+          if(caja.bottom<0||caja.top>vh())manual=false;
+          if(!manual)estadoMapa(days[0].getBoundingClientRect().top<120?'mini':'open');
+        }else if(mapa){
+          estadoMapa('open');
+        }
+      }};
+    rutas.push(r);
     nodes.forEach(function(n){
-      n.addEventListener('click',function(){
+      function ir(){
         var t=rt.querySelector('.day[data-day="'+n.dataset.day+'"]');
-        if(t)t.scrollIntoView({block:'center',behavior:reduce?'auto':'smooth'});
+        if(t)t.scrollIntoView({block:'start',behavior:reduce?'auto':'smooth'});
+      }
+      n.addEventListener('click',ir);
+      n.addEventListener('keydown',function(e){
+        if(e.key==='Enter'||e.key===' '){e.preventDefault();ir()}
+      });
+    });
+    days.forEach(function(d){
+      d.addEventListener('mouseenter',function(){
+        var h=d.querySelector('h3');
+        pinta(+d.dataset.day,h?h.textContent:'');
       });
     });
   });
+  function sincroniza(){rutas.forEach(function(r){r.calcula()})}
+
+  addEventListener('beforeprint',function(){
+    boxes.forEach(fill);
+    document.querySelectorAll('svg .seg').forEach(function(sg){
+      sg.classList.add('done'); sg.style.strokeDashoffset=0;
+    });
+  });
+
+  sweep(); sincroniza();
 
   // 4. sección activa en la barra
   var links=[].slice.call(document.querySelectorAll('.topbar nav a'));
@@ -452,9 +672,17 @@ def route_article(r):
              '<p class="kicker">%s</p><h2>%s</h2><p class="claim">%s</p></header>' %
              (r["id"], e(r["kicker"]), e(r["name"]), e(r["claim"])))
     L.append('<div class="route-body"><aside class="route-aside">')
-    L.append('<div class="map-wrap" data-lab="Trazado esquemático">%s</div>'
-             '<p class="maphint">Los círculos son los días. Al pasar por un día se enciende en el mapa; '
-             'al pulsar un círculo, salta a ese día.</p>' % map_svg(r))
+    L.append('<div class="route-map" data-state="open">'
+             '<button class="map-toggle" type="button" aria-expanded="true" aria-label="Mostrar u ocultar el mapa">'
+             '<span class="mt-day">Ruta %s</span><span class="mt-txt">Mapa por días</span>'
+             '<span class="mt-bar"><i style="width:0%%"></i></span><span class="mt-ico" aria-hidden="true"></span>'
+             '</button>'
+             '<div class="map-wrap" data-lab="Trazado esquemático">%s</div>'
+             '<p class="mapnow idle" data-idle="Los círculos son los días: el trazado se enciende según el '
+             'día que estás leyendo y, al pulsar uno, salta a ese día."><b>Ruta %s</b>'
+             '<span>Los círculos son los días: el trazado se enciende según el día que estás leyendo y, '
+             'al pulsar uno, salta a ese día.</span></p></div>'
+             '<div class="route-facts">' % (r["id"], map_svg(r), r["id"]))
     L.append("<dl class=\"stats\">"
              "<dt>Días</dt><dd><b>%d</b></dd>"
              "<dt>Kilómetros</dt><dd><b>%s</b> aprox.</dd>"
@@ -470,7 +698,7 @@ def route_article(r):
               "".join("<li>%s</li>" % e(i) for i in r["sacrificas"])))
     L.append('<p class="warn"><b>Antes de meterse</b>%s</p>' % e(r["aviso"]))
     L.append('<p class="trim"><b>Si son 9 días</b>%s</p>' % e(r["recorte"]))
-    L.append("</aside><div>")
+    L.append("</div></aside><div>")
     L.append('<p class="route-sum">%s</p>' % e(r["resumen"]))
     L.append('<ol class="days">')
     for d in r["dias_detalle"]:
@@ -522,7 +750,7 @@ def main():
              % "".join('<a href="%s">%s</a>' % (h, t) for h, t in navlinks))
 
     # ---- hero
-    H.append('<header class="hero" id="top"><div class="hero-bg"><img alt="Landmannalaugar" src="%s"></div>%s'
+    H.append('<header class="hero" id="top"><div class="hero-bg"><img alt="Landmannalaugar" src="%s"></div>'
              '<div class="wrap"><p class="eyebrow">%s</p><h1>Islandia<em>salvaje</em></h1>'
              '<p class="lede">Seis rutas posibles para dos personas con una camper, ordenadas por lo que de verdad '
              'decide el viaje: la fecha. Comparad, elegid una y ajustadla. Cada parada lleva fotos reales del sitio.</p>'
@@ -532,8 +760,8 @@ def main():
              '<div><dt>Rutas</dt><dd>4 + 2<small> cuatro propias y dos clásicas</small></dd></div>'
              '<div><dt>Paradas</dt><dd>%d<small> con %d fotos reales</small></dd></div>'
              '<div><dt>Auroras</dt><dd>No<small> se cambian por acceso total</small></dd></div>'
-             '</dl></div></header>' % (HEROIMG[HEROES[0]], map_svg(None, "rmap hmap"), e(C.META["pareja"]),
-                                       n_paradas, total_photos))
+             '</dl></div>%s</header>' % (HEROIMG[HEROES[0]], e(C.META["pareja"]),
+                                         n_paradas, total_photos, map_svg(None, "rmap hmap")))
 
     # ---- cuándo
     H.append('<section id="cuando"><div class="wrap"><div class="shead"><span class="num">01 · Fechas</span>'
@@ -633,8 +861,6 @@ def main():
              % (json.dumps(IMG), json.dumps(GAL, ensure_ascii=False),
                 json.dumps(NAMES, ensure_ascii=False), json.dumps(C.TAGS, ensure_ascii=False)))
     H.append("<script>%s</script>" % lib("swiper.min.js"))
-    H.append("<script>%s</script>" % lib("gsap.min.js"))
-    H.append("<script>%s</script>" % lib("scrolltrigger.min.js"))
     H.append("<script>%s</script>" % JS)
 
     doc = "\n".join(H)
